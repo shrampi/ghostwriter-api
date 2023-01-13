@@ -6,11 +6,8 @@ const baseURL = '/api/sources';
 
 sourcesRouter.get(baseURL, (request, response) => {
   console.log('Source information requested...');
-  const sourcesInfo = sources.map((source) => ({
-    id: source.id,
-    title: source.title,
-    author: source.author,
-  }));
+  console.log(sources);
+  const sourcesInfo = sources.map((s) => ({...s, data: undefined}));
   return response.json(sourcesInfo);
 });
 
