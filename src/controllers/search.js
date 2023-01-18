@@ -3,6 +3,7 @@ const searchCatalog = require("../utils/searchCatalog");
 
 const baseURL = "/api/search";
 
+/** Router for sending Project Gutenberg catalog search results. */
 searchRouter.get(baseURL, (request, response) => {
   const query = request.query.q;
   if (!query) {

@@ -1,9 +1,18 @@
 const sourcesRouter = require("express").Router();
-const sources = require("../resources/sources.json");
-const SugTree = require("suggestion-tree");
+const SuggestionMachine = require("suggestion-machine");
 
+const processSourcesData = (sources) => {
+  return sources.map(source => {
+    return {
+      ...source, machine: new SuggestionMachine(source.data), data: undefined
+    }
+  })
+}
+
+const sources = processSourcesData(require("../resources/sourcesData.json"));
 const baseURL = "/api/sources";
 
+/** Router for sending identifying information of all sources available on server. */
 sourcesRouter.get(baseURL, (request, response) => {
   console.log("Source information requested...");
   console.log(sources);
@@ -11,16 +20,18 @@ sourcesRouter.get(baseURL, (request, response) => {
   return response.json(sourcesInfo);
 });
 
+/** Router for providing suggestions.  */
 sourcesRouter.get(baseURL + "/:id", (request, response) => {
-  const id = request.params.id;
-  const amountQuery = request.query.n;
-  const amount = amountQuery !== undefined ? Number(amountQuery) : 1;
-  const tokensQuery = request.query.q;
-  const tokens = tokensQuery ? tokensQuery.split(" ") : [];
-  const accuracyQuery = request.query.a;
-  const accuracy = accuracyQuery !== undefined ? accuracyQuery : 3;
 
-  if (amount < 0 || amount > 500) {
+  const requestOptions = {
+    sourceID: request.params.id,
+    tokens: request.query.q ? request.query.q.split(" ") : [],
+    suggestionLength: request.query.n !== undefined ? Number(request.query.n) : 1,
+    suggestionAccuracy: request.query.a !== undefined ? request.query.a : 3
+  }
+  console.log('Parameters of request: ', requestOptions);
+
+  if (requestOptions.suggestionLength < 0 || requestOptions.suggestionLength > 500) {
     return response
       .status(400)
       .send({
@@ -29,7 +40,7 @@ sourcesRouter.get(baseURL + "/:id", (request, response) => {
   }
   0;
 
-  if (accuracy < 0 || accuracy > 3) {
+  if (requestOptions.suggestionAccuracy < 0 || requestOptions.suggestionAccuracy > 3) {
     return response
       .status(400)
       .send({
@@ -37,7 +48,7 @@ sourcesRouter.get(baseURL + "/:id", (request, response) => {
       });
   }
 
-  const source = sources.find((source) => source.id === id);
+  const source = sources.find((source) => source.id === requestOptions.sourceID);
 
   if (!source) {
     return response
@@ -46,29 +57,23 @@ sourcesRouter.get(baseURL + "/:id", (request, response) => {
   }
 
   console.log(
-    "Suggestion requested from source: ",
+    "Source found, retrieving suggestion from: ",
     source.title,
     source.author
   );
-  console.log("Predecessors: ", tokens);
-  console.log("Num words requested: ", amount);
-  console.log("Accuracy of suggestion: ", accuracy);
 
-  let suggestionsNeeded = amount;
+  let suggestionsNeeded = requestOptions.suggestionLength;
   let suggestions = "";
-  let currentTokens = tokens;
-  if (currentTokens.length > accuracy) {
-    currentTokens = currentTokens.slice(currentTokens.length - accuracy);
-  }
+  let relevantTokens = requestOptions.tokens.length < requestOptions.suggestionAccuracy ?
+    requestOptions.tokens :
+    requestOptions.tokens.slice(requestOptions.tokens.length - requestOptions.suggestionAccuracy)
 
-  const sTree = new SugTree([0]);
-  sTree.data = source.data;
   while (suggestionsNeeded > 0) {
-    let newSuggestion = sTree.getSuggestionFor(currentTokens);
+    let newSuggestion = source.machine.suggestFor(relevantTokens);
     suggestions += newSuggestion + " ";
-    currentTokens.push(newSuggestion);
-    if (currentTokens.length > accuracy) {
-      currentTokens = currentTokens.slice(currentTokens.length - accuracy);
+    relevantTokens.push(newSuggestion);
+    if (relevantTokens.length > requestOptions.suggestionAccuracy) {
+      relevantTokens = relevantTokens.slice(relevantTokens.length - requestOptions.suggestionAccuracy);
     }
     suggestionsNeeded -= 1;
   }

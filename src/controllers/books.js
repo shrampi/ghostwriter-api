@@ -3,6 +3,7 @@ const gutenbergService = require("../services/gutenberg");
 
 const baseURL = "/api/books";
 
+/** Router for retrieving texts from Project Gutenberg. */
 booksRouter.get(baseURL + "/:id", (request, response) => {
   const id = request.params.id;
   console.log("retrieving book with id ", id);
