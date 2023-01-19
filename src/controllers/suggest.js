@@ -1,9 +1,9 @@
 const suggestRouter = require("express").Router();
-const SuggestionMachine = require("suggestion-machine");
 const getSources = require("../utils/getSources");
 const sources = getSources();
 const baseURL = "/api/suggest";
 
+/** Returns true if suggestion length and accuracy fall within the respective valid ranges. */
 const validateRequestOptions = (options) => {
   const lengthValid =
     options.suggestionLength > 0 && options.suggestionLength < 500;
@@ -11,6 +11,22 @@ const validateRequestOptions = (options) => {
     options.suggestionAccuracy >= 0 && options.suggestionAccuracy <= 3;
   return lengthValid && accuracyValid;
 };
+
+/** Calculates the suggestion for the given request options and source suggestion machine. */
+const calculateSuggestion = (options, machine) => {
+  const relevantTokens = options.tokens.slice(-1 * options.suggestionAccuracy);
+  let result = ''
+  if (options.suggestionLength > 1) {
+    machine.suggestSequenceFor(relevantTokens, options.suggestionLength, options.suggestionAccuracy).forEach(suggestion => {
+      result += suggestion + " ";
+    })
+    result = result.trim();
+  }
+  else {
+    result = machine.suggestFor(relevantTokens);
+  }
+  return result;
+}
 
 /** Router for providing suggestions.  */
 suggestRouter.get(baseURL + "/:id", (request, response) => {
@@ -47,30 +63,9 @@ suggestRouter.get(baseURL + "/:id", (request, response) => {
     source.author
   );
 
-  let suggestionsNeeded = requestOptions.suggestionLength;
-  let suggestions = "";
-  let relevantTokens =
-    requestOptions.tokens.length < requestOptions.suggestionAccuracy
-      ? requestOptions.tokens
-      : requestOptions.tokens.slice(
-          requestOptions.tokens.length - requestOptions.suggestionAccuracy
-        );
-
-  while (suggestionsNeeded > 0) {
-    let newSuggestion = source.machine.suggestFor(relevantTokens);
-    suggestions += newSuggestion + " ";
-    relevantTokens.push(newSuggestion);
-    if (relevantTokens.length > requestOptions.suggestionAccuracy) {
-      relevantTokens = relevantTokens.slice(
-        relevantTokens.length - requestOptions.suggestionAccuracy
-      );
-    }
-    suggestionsNeeded -= 1;
-  }
-
-  suggestions = suggestions.trim();
-  console.log("Suggestion(s) found: ", suggestions);
-  return response.json(suggestions);
+  const suggestion = calculateSuggestion(requestOptions, source.machine);
+  console.log("Suggestion(s) found: ", suggestion);
+  return response.json(suggestion);
 });
 
 module.exports = suggestRouter;
