@@ -1,8 +1,8 @@
 const SuggestionMachine = require('suggestion-machine');
-const sourcesData = require('../resources/sourcesData.json');
+const sourcesData = require('../resources/sourcesDB.json');
 
 /** 
- * Returns the data stored in ../resources/sourceData.JSON.
+ * Returns the data stored in ../resources/sourcesDB.JSON.
  * @param {boolean} [includeMachine=true] If true, the data returned will include a SuggestionMachine for each source.
  * @returns {Object[]}
  */

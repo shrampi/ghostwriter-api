@@ -6,7 +6,7 @@ const baseURL = "/api/suggest";
 /** Returns true if suggestion length and accuracy fall within the respective valid ranges. */
 const validateRequestOptions = (options) => {
   const lengthValid =
-    options.suggestionLength > 0 && options.suggestionLength < 500;
+    options.suggestionCount > 0 && options.suggestionCount < 500;
   const accuracyValid =
     options.suggestionAccuracy >= 0 && options.suggestionAccuracy <= 3;
   return lengthValid && accuracyValid;
@@ -14,13 +14,15 @@ const validateRequestOptions = (options) => {
 
 /** Calculates the suggestion for the given request options and source suggestion machine. */
 const calculateSuggestion = (options, machine) => {
-  const relevantTokens = options.tokens.slice(-1 * options.suggestionAccuracy);
+  const relevantTokens = options.suggestionAccuracy > 0
+    ? options.tokens.slice(-1 * options.suggestionAccuracy)
+    : [];
   let result = "";
-  if (options.suggestionLength > 1) {
+  if (options.suggestionCount > 1) {
     machine
       .suggestSequenceFor(
         relevantTokens,
-        options.suggestionLength,
+        options.suggestionCount,
         options.suggestionAccuracy
       )
       .forEach((suggestion) => {
@@ -38,14 +40,14 @@ suggestRouter.get(baseURL + "/:id", (request, response) => {
   const requestOptions = {
     sourceID: request.params.id,
     tokens: request.query.q ? request.query.q.split(" ") : [],
-    suggestionLength: request.query.n ? Number(request.query.n) : 1,
+    suggestionCount: request.query.n ? Number(request.query.n) : 1,
     suggestionAccuracy: request.query.a ? Number(request.query.a) : 3,
   };
   console.log("Parameters of request: ", requestOptions);
 
   if (!validateRequestOptions(requestOptions)) {
     return response.status(400).send({
-      error: `Request query n=${requestOptions.suggestionLength} (suggestionLength) or a=${requestOptions.suggestionAccuracy} (suggestionAccuracy) out of range 0 < n < 500, -1 < a < 4 `,
+      error: `Request query n=${requestOptions.suggestionCount} (suggestionLength) or a=${requestOptions.suggestionAccuracy} (suggestionAccuracy) out of range 0 < n < 500, -1 < a < 4 `,
     });
   }
 
@@ -62,6 +64,7 @@ suggestRouter.get(baseURL + "/:id", (request, response) => {
   console.log(
     "Source found, retrieving suggestion from: ",
     source.title,
+    '-',
     source.author
   );
 
