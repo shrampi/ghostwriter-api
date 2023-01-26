@@ -15,26 +15,30 @@ const validateRequestOptions = (options) => {
 /** Calculates the suggestion for the given request options and source suggestion machine. */
 const calculateSuggestion = (options, machine) => {
   const relevantTokens = options.tokens.slice(-1 * options.suggestionAccuracy);
-  let result = ''
+  let result = "";
   if (options.suggestionLength > 1) {
-    machine.suggestSequenceFor(relevantTokens, options.suggestionLength, options.suggestionAccuracy).forEach(suggestion => {
-      result += suggestion + " ";
-    })
+    machine
+      .suggestSequenceFor(
+        relevantTokens,
+        options.suggestionLength,
+        options.suggestionAccuracy
+      )
+      .forEach((suggestion) => {
+        result += suggestion + " ";
+      });
     result = result.trim();
-  }
-  else {
+  } else {
     result = machine.suggestFor(relevantTokens);
   }
   return result;
-}
+};
 
 /** Router for providing suggestions.  */
 suggestRouter.get(baseURL + "/:id", (request, response) => {
   const requestOptions = {
     sourceID: request.params.id,
     tokens: request.query.q ? request.query.q.split(" ") : [],
-    suggestionLength:
-      request.query.n !== undefined ? Number(request.query.n) : 1,
+    suggestionLength: request.query.n ? Number(request.query.n) : 1,
     suggestionAccuracy: request.query.a !== undefined ? request.query.a : 3,
   };
   console.log("Parameters of request: ", requestOptions);
@@ -50,11 +54,9 @@ suggestRouter.get(baseURL + "/:id", (request, response) => {
   );
 
   if (!source) {
-    return response
-      .status(400)
-      .send({
-        error: `Source with ID ${requestOptions.sourceID} does not exist`,
-      });
+    return response.status(400).send({
+      error: `Source with ID ${requestOptions.sourceID} does not exist`,
+    });
   }
 
   console.log(
