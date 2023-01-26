@@ -39,7 +39,7 @@ suggestRouter.get(baseURL + "/:id", (request, response) => {
     sourceID: request.params.id,
     tokens: request.query.q ? request.query.q.split(" ") : [],
     suggestionLength: request.query.n ? Number(request.query.n) : 1,
-    suggestionAccuracy: request.query.a !== undefined ? request.query.a : 3,
+    suggestionAccuracy: request.query.a ? Number(request.query.a) : 3,
   };
   console.log("Parameters of request: ", requestOptions);
 
