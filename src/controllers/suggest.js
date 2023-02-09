@@ -14,25 +14,42 @@ const validateRequestOptions = (options) => {
 
 /** Calculates the suggestion for the given request options and source suggestion machine. */
 const calculateSuggestion = (options, machine) => {
-  const relevantTokens = options.suggestionAccuracy > 0
-    ? options.tokens.slice(-1 * options.suggestionAccuracy)
-    : [];
-  let result = "";
+  const relevantTokens =
+    options.suggestionAccuracy > 0
+      ? options.tokens.slice(-1 * options.suggestionAccuracy)
+      : [];
+
   if (options.suggestionCount > 1) {
+    let result = "";
     machine
       .suggestSequenceFor(
         relevantTokens,
         options.suggestionCount,
-        options.suggestionAccuracy
+        options.suggestionAccuracy,
+        options.weighted
       )
       .forEach((suggestion) => {
         result += suggestion + " ";
       });
-    result = result.trim();
-  } else {
-    result = machine.suggestFor(relevantTokens);
+
+    return result.trim();
   }
-  return result;
+
+  if (options.exclude && options.suggestionAccuracy > 0) {
+    const suggestions = machine.getAllSuggestionsFor(relevantTokens);
+    const filteredSuggestions = suggestions.filter((word) => word !== exclude);
+    if (filteredSuggestions.length > 0) {
+      return filteredSuggestions[
+        Math.floor(filteredSuggestions.length * Math.random())
+      ];
+    }
+    return calculateSuggestion(
+      { ...options, suggestionAccuracy: options.suggestionAccuracy - 1 },
+      machine
+    );
+  }
+
+  return machine.suggestFor(relevantTokens, options.weighted);
 };
 
 /** Router for providing suggestions.  */
@@ -42,6 +59,8 @@ suggestRouter.get(baseURL + "/:id", (request, response) => {
     tokens: request.query.q ? request.query.q.split(" ") : [],
     suggestionCount: request.query.n ? Number(request.query.n) : 1,
     suggestionAccuracy: request.query.a ? Number(request.query.a) : 3,
+    weighted: request.query.w === "true",
+    exclude: request.query.x ? request.query.x : null,
   };
   console.log("Parameters of request: ", requestOptions);
 
@@ -64,7 +83,7 @@ suggestRouter.get(baseURL + "/:id", (request, response) => {
   console.log(
     "Source found, retrieving suggestion from: ",
     source.title,
-    '-',
+    "-",
     source.author
   );
 
