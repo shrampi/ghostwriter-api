@@ -26,8 +26,6 @@ const parseRequestParameters = (request) => {
   return result;
 };
 
-
-
 /** Router for providing suggestions.  */
 suggestRouter.get(baseURL + "/:id", (request, response) => {
   const params = parseRequestParameters(request);
