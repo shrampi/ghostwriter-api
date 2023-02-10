@@ -49,7 +49,6 @@ const calculateSuggestion = (params, machine) => {
     return calculateSuggestionExcluding(params, machine);
   }
 
-  console.log("here", params);
   return machine.suggestFor(params.tokens, params.weighted);
 };
 
