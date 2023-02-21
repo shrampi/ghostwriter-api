@@ -7,12 +7,12 @@
  */
 const removeGutenbergLabels = (text) => {
   let result = text.slice();
-  const headerStartIndex = result.indexOf('*** START OF THE PROJECT GUTENBERG');
+  const headerStartIndex = result.indexOf('*** START');
   if (headerStartIndex === -1) {
     return result;
   }
   const headerEndIndex = result.indexOf('***', headerStartIndex + 3);
-  const footerStartIndex = result.indexOf('*** END OF THE PROJECT GUTENBERG');
+  const footerStartIndex = result.indexOf('*** END');
   result = result.slice(headerEndIndex + 3, footerStartIndex);
   return result;
 };
