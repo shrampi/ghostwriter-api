@@ -1,5 +1,5 @@
 const sourcesRouter = require("express").Router();
-const getSources = require('../utils/getSources');
+const getSources = require('../services/getSources');
 const baseURL = "/api/sources";
 const sources = getSources(false);
 

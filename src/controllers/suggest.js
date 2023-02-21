@@ -1,5 +1,5 @@
 const suggestRouter = require("express").Router();
-const getSources = require("../utils/getSources");
+const getSources = require("../services/getSources");
 const sources = getSources();
 const baseURL = "/api/suggest";
 const calculateSuggestion = require('../services/calculateSuggestion');

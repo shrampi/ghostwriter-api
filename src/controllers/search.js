@@ -1,5 +1,5 @@
 const searchRouter = require("express").Router();
-const searchCatalog = require("../utils/searchCatalog");
+const searchCatalog = require("../services/searchCatalog");
 
 const baseURL = "/api/search";
 
