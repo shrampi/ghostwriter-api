@@ -1,5 +1,4 @@
 const express = require("express");
-const cors = require("cors");
 const unknownEndpoint = require("./middleware/unknownEndpoint");
 const errorMiddleware = require("./middleware/errorMiddleware");
 const requestLogger = require("./middleware/requestLogger");
@@ -9,9 +8,9 @@ const sourcesRouter = require("./controllers/sources");
 const suggestRouter = require("./controllers/suggest");
 
 const app = express();
-app.use(cors());
+
 app.use(requestLogger);
-app.use(express.static("../public"));
+app.use(express.static("dist"));
 
 app.use(bookRouter);
 app.use(searchRouter);
