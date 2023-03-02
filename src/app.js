@@ -1,7 +1,9 @@
 const express = require("express");
+
 const unknownEndpoint = require("./middleware/unknownEndpoint");
 const errorMiddleware = require("./middleware/errorMiddleware");
 const requestLogger = require("./middleware/requestLogger");
+
 const bookRouter = require("./controllers/books");
 const searchRouter = require("./controllers/search");
 const sourcesRouter = require("./controllers/sources");
@@ -9,8 +11,9 @@ const suggestRouter = require("./controllers/suggest");
 
 const app = express();
 
-app.use(requestLogger);
 app.use(express.static("dist"));
+app.use(express.json());
+app.use(requestLogger);
 
 app.use(bookRouter);
 app.use(searchRouter);

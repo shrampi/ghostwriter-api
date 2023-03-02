@@ -1,6 +1,6 @@
 const booksRouter = require("express").Router();
 const gutenbergService = require("../services/gutenberg");
-const formatBookText = require("../utils/formatBookText");
+const formatBookText = require("../services/formatBookText");
 
 const baseURL = "/api/books";
 
