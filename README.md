@@ -1,6 +1,8 @@
 # ghostwriter-api
 
-Express.js backend of the GhostWriter web app. For front end, see [ghostwriter-web](https://github.com/shrimpactivity/ghostwriter-web)
+Express.js backend of the GhostWriter web app. For front end, see [ghostwriter-web](https://github.com/shrimpactivity/ghostwriter-web).
+
+Bundled frontend is included in `/dist`
 
 # Installation
 
