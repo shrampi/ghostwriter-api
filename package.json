@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "set NODE_ENV=production &&node src/index.js",
-    "dev": "set NODE_ENV=development && nodemon src/index.js",
+    "start": "set NODE_ENV=production && node build/index.js",
+    "dev": "set NODE_ENV=development && ts-node-dev src/index.ts",
+    "build": "npx tsc",
     "test": "NODE_ENV=test jest --verbose --runInBand",
     "lint": "npx eslint src",
     "prettier": "npx prettier src test --check",
@@ -23,7 +24,7 @@
   },
   "homepage": "https://github.com/shrampi/ghostwriter-api#readme",
   "dependencies": {
-    "axios": "^1.2.2",
+    "axios": "^1.7.7",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
@@ -32,9 +33,12 @@
     "suggestion-machine": "^1.0.2"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "eslint": "^8.32.0",
     "eslint-config-prettier": "^8.6.0",
-    "nodemon": "^2.0.20",
-    "prettier": "2.8.3"
+    "prettier": "2.8.3",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.4"
   }
 }

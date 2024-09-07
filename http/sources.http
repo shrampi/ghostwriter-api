@@ -1,0 +1,13 @@
+GET http://localhost:3000/api/sources/qwertyuiop
+
+###
+
+GET http://localhost:3000/api/books/11
+
+### 
+
+GET http://localhost:3000/api/suggest/abcdefg?q=the+quick+brown&a=1&n=5
+
+### 
+
+GET http://localhost:3000/api/suggest/abcdefg?q=quick+brown&x=fox
